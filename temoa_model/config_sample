@@ -8,11 +8,11 @@
 # Input File (Mandatory) 
 # Input can be a .sqlite or .dat file
 # Both relative path and absolute path are accepted
---input=data_files/temoa_utopia.sqlite
+--input=data_files/US_9R_TS.sqlite
 
 # Output File (Mandatory)
 # The output file must be a existing .sqlite file
---output=data_files/temoa_utopia.sqlite
+--output=data_files/US_9R_TS.sqlite
 
 # Scenario Name (Mandatory) 
 # This scenario name is used to store results within the output .sqlite file
@@ -25,8 +25,8 @@
 # Solve Myopically (Optional)
 # Allows user to solve one model time period at a time, sequentially
 # Default operation is "perfect foresight"
-#--myopic
-#--myopic_periods=2
+--myopic
+--myopic_periods=1
 #--keep_myopic_databases
 
 # Report Duals (Optional) 

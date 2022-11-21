@@ -509,8 +509,8 @@ technologies, we use :math:`\textbf{FI}_{r, p, s, d, i, t, v, c}`. Note that the
 variable is defined only for storage technologies, and is required because storage
 technologies balance production and consumption across time slices rather than
 within a single time slice. For commodity flows into non-storage processes with time
-varying output, we use :math:`\textbf{FO}_{r, p, s, d, i, t, v, c}/EFF_{r, i,t,v,o}`.
-The division by :math:`EFF_{r, c,t,v,o}` is applied to the output flows that consume
+varying output, we use :math:`\textbf{FO}_{r, p, s, d, i, t, v, c}/(EFF_{r, i,t,v,o} \cdot EFFVAR_{r, i,t,s,d,o})`.
+The division by :math:`EFF_{r, i,t,v,o} \cdot EFFVAR_{r, i,t,s,d,o}` is applied to the output flows that consume
 commodity :math:`c` to determine input flows. Finally, we need to account
 for the consumption of commodity :math:`c` by the processes in
 :code:`tech_annual`. Since the commodity flow of these processes is on an
@@ -559,10 +559,10 @@ reduces computational burden.
        \\
        = &\sum_{T^{s}, V, I} \textbf{FIS}_{r, p, s, d, c, t, v, o}
        \\ &\quad +
-       \sum_{T-T^{s}, V, O} \textbf{FO}_{r, p, s, d, c, t, v, o} /EFF_{r, c,t,v,o}
+       \sum_{T-T^{s}, V, O} \textbf{FO}_{r, p, s, d, c, t, v, o} /(EFF_{r, c,t,v,o} \cdot EFFVAR_{r, i,t,s,d,o})
        \\
        &\quad + \; SEG_{s,d} \cdot
-       \sum_{I, T^{a}, V} \textbf{FOA}_{r, p, c, t \in T^{a}, v, o} /EFF_{r, c,t,v,o} \\
+       \sum_{I, T^{a}, V} \textbf{FOA}_{r, p, c, t, v, o} /(EFF_{r, c,t,v,o} \cdot EFFVAR_{r, i,t,s,d,o}) \\
        &\quad + \sum_{reg} \textbf{FEX}_{r-reg, p, s, d, c, t, v, o} \; \forall reg \neq r
        \\ &\quad + \;
        \textbf{FLX}_{r, p, s, d, i, t, v, c}
@@ -581,13 +581,13 @@ reduces computational burden.
     )
 
     vflow_in_ToNonStorage = sum(
-        M.V_FlowOut[r, p, s, d, c, S_t, S_v, S_o] / value(M.Efficiency[r, c, S_t, S_v, S_o])
+        M.V_FlowOut[r, p, s, d, c, S_t, S_v, S_o] / (value(M.Efficiency[r, c, S_t, S_v, S_o]) * value(M.EfficiencyVariable[r, c, S_t, s, d, S_o]))
         for S_t, S_v in M.commodityDStreamProcess[r, p, c] if S_t not in M.tech_storage and S_t not in M.tech_annual
         for S_o in M.ProcessOutputsByInput[r, p, S_t, S_v, c]
     )
 
     vflow_in_ToNonStorageAnnual = value(M.SegFrac[s, d]) * sum(
-        M.V_FlowOutAnnual[r, p, c, S_t, S_v, S_o] / value(M.Efficiency[r, c, S_t, S_v, S_o])
+        M.V_FlowOutAnnual[r, p, c, S_t, S_v, S_o] / (value(M.Efficiency[r, c, S_t, S_v, S_o]) * value(M.EfficiencyVariable[r, c, S_t, s, d, S_o]))
         for S_t, S_v in M.commodityDStreamProcess[r, p, c] if S_t not in M.tech_storage and S_t in M.tech_annual
         for S_o in M.ProcessOutputsByInput[r, p, S_t, S_v, c]
     )
@@ -872,7 +872,7 @@ on the input side:
 
       \textbf{stored\_energy} =
       \sum_{I, O} \textbf{FIS}_{r, p, s, d, i, t, v, o} \cdot
-      EFF_{r,i,t,v,o}
+      EFF_{r,i,t,v,o} \cdot EFFVAR_{r,i,t,s,d,o}
       -
       \sum_{I, O} \textbf{FO}_{r, p, s, d, i, t, v, o}
 
@@ -910,7 +910,7 @@ All equations below are sparsely indexed such that:
     # This is the sum of all input=i sent TO storage tech t of vintage v with
     # output=o in p,s,d
     charge = sum(
-        M.V_FlowIn[r, p, s, d, S_i, t, v, S_o] * M.Efficiency[r, S_i, t, v, S_o]
+        M.V_FlowIn[r, p, s, d, S_i, t, v, S_o] * M.Efficiency[r, S_i, t, v, S_o] * M.EfficiencyVariable[r, S_i, t, s, d, S_o]
         for S_i in M.processInputs[r, p, t, v]
         for S_o in M.ProcessOutputsByInput[r, p, t, v, S_i]
     )
@@ -1006,7 +1006,7 @@ limited by the power capacity (typically GW) of the storage unit.
 .. math::
    :label: StorageChargeRate
 
-      \sum_{I, O} \textbf{FIS}_{r, p, s, d, i, t, v, o} \cdot EFF_{r,i,t,v,o}
+      \sum_{I, O} \textbf{FIS}_{r, p, s, d, i, t, v, o} \cdot EFF_{r,i,t,v,o} \cdot EFFVAR_{r,i,t,s,d,o}
       \le
       \textbf{CAP}_{r,t,v} \cdot C2A_{r,t} \cdot SEG_{s,d}
 
@@ -1016,7 +1016,7 @@ limited by the power capacity (typically GW) of the storage unit.
 """
     # Calculate energy charge in each time slice
     slice_charge = sum(
-        M.V_FlowIn[r, p, s, d, S_i, t, v, S_o] * M.Efficiency[r, S_i, t, v, S_o]
+        M.V_FlowIn[r, p, s, d, S_i, t, v, S_o] * M.Efficiency[r, S_i, t, v, S_o] * M.EfficiencyVariable[r, S_i, t, s, d, S_o]
         for S_i in M.processInputs[r, p, t, v]
         for S_o in M.ProcessOutputsByInput[r, p, t, v, S_i]
     )
@@ -1084,7 +1084,7 @@ the capacity (typically GW) of the storage unit.
 
       \sum_{I, O} \textbf{FO}_{r, p, s, d, i, t, v, o}
       +
-      \sum_{I, O} \textbf{FIS}_{r, p, s, d, i, t, v, o} \cdot EFF_{r,i,t,v,o}
+      \sum_{I, O} \textbf{FIS}_{r, p, s, d, i, t, v, o} \cdot EFF_{r,i,t,v,o} \cdot EFFVAR_{r,i,t,s,d,o}
       \le
       \textbf{CAP}_{r,t,v} \cdot C2A_{r,t} \cdot SEG_{s,d}
 
@@ -1098,7 +1098,7 @@ the capacity (typically GW) of the storage unit.
     )
 
     charge = sum(
-        M.V_FlowIn[r, p, s, d, S_i, t, v, S_o] * M.Efficiency[r, S_i, t, v, S_o]
+        M.V_FlowIn[r, p, s, d, S_i, t, v, S_o] * M.Efficiency[r, S_i, t, v, S_o] * M.EfficiencyVariable[r, S_i, t, s, d, S_o]
         for S_i in M.processInputs[r, p, t, v]
         for S_o in M.ProcessOutputsByInput[r, p, t, v, S_i]
     )
@@ -1927,12 +1927,12 @@ only the technologies with variable output at the timeslice level (i.e.,
 NOT in the :code:`tech_annual` set) are considered.
 """
     inp = sum(
-        M.V_FlowOut[r, p, s, d, i, t, v, S_o] / value(M.Efficiency[r, i, t, v, S_o])
+        M.V_FlowOut[r, p, s, d, i, t, v, S_o] / ( value(M.Efficiency[r, i, t, v, S_o]) * value(M.EfficiencyVariable[r, i, t, s, d, S_o]) )
         for S_o in M.ProcessOutputsByInput[r, p, t, v, i]
     )
 
     total_inp = sum(
-        M.V_FlowOut[r, p, s, d, S_i, t, v, S_o] / value(M.Efficiency[r, S_i, t, v, S_o])
+        M.V_FlowOut[r, p, s, d, S_i, t, v, S_o] / ( value(M.Efficiency[r, S_i, t, v, S_o]) * value(M.EfficiencyVariable[r, S_i, t, s, d, S_o]) )
         for S_i in M.processInputs[r, p, t, v]
         for S_o in M.ProcessOutputsByInput[r, p, t, v, i]
     )
@@ -1973,14 +1973,14 @@ the constraint only fixes the input shares over the course of a year.
 """
 
     inp = sum(
-        M.V_FlowOut[r, p, s, d, i, t, v, S_o] / value(M.Efficiency[r, i, t, v, S_o])
+        M.V_FlowOut[r, p, s, d, i, t, v, S_o] / ( value(M.Efficiency[r, i, t, v, S_o]) * value(M.EfficiencyVariable[r, i, t, s, d, S_o]) )
         for s in M.time_season
         for d in M.time_of_day
         for S_o in M.ProcessOutputsByInput[r, p, t, v, i]
     )
 
     total_inp = sum(
-        M.V_FlowOut[r, p, s, d, S_i, t, v, S_o] / value(M.Efficiency[r, S_i, t, v, S_o])
+        M.V_FlowOut[r, p, s, d, S_i, t, v, S_o] / ( value(M.Efficiency[r, S_i, t, v, S_o]) * value(M.EfficiencyVariable[r, S_i, t, s, d, S_o]) )
         for s in M.time_season
         for d in M.time_of_day
         for S_i in M.processInputs[r, p, t, v]

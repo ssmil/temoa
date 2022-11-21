@@ -157,6 +157,7 @@ def db_2_dat(ifile, ofile, options):
 		['param','CapacityFactorTech',        '',                    '',             4],
 		['param','CapacityFactorProcess',     '',                    '',             5],
 		['param','Efficiency',                '',                    '',             5],
+        ['param','EfficiencyVariable',        '',                    '',             6],
 		['param','ExistingCapacity',          '',                    '',             3],
 		['param','CostInvest',                '',                    '',             3],
 		['param','CostFixed',                 '',                    '',             4],
@@ -166,6 +167,7 @@ def db_2_dat(ifile, ofile, options):
 		['param','RampDown',                  '',                    '',             2],
 		['param','StorageInitFrac',           '',                    '',             3],
 		['param','StorageDuration',           '',                    '',             2]]
+
 
 	with open(ofile, 'w') as f:
 		f.write('data ;\n\n')

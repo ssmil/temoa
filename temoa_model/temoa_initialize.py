@@ -843,6 +843,17 @@ def RegionalGlobalInitializedIndices ( M ):
 
 	return indices
 
+def EfficiencyVariableIndices(M):
+    indices = set(
+        (r, i, t, s, d, o)
+
+        for r, i, t, v, o in M.Efficiency.sparse_iterkeys()
+        for s in M.time_season
+        for d in M.time_of_day
+    )
+
+    return indices
+
 
 def EmissionActivityIndices ( M ):
 	indices = set(

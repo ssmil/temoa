@@ -175,7 +175,7 @@ def pformat_results ( pyomo_instance, pyomo_result, options ):
 		svars['V_FlowOut'][r, p, s, d, i, t, v, o] = val_out
 
 		if t not in m.tech_storage:
-			val_in = value( m.V_FlowOut[r, p, s, d, i, t, v, o] ) / value(m.Efficiency[r, i, t, v, o]) 
+            val_in = value(m.V_FlowOut[r, p, s, d, i, t, v, o]) / (value(m.Efficiency[r, i, t, v, o]) *  value(m.EfficiencyVariable[r, i, t, s, d, o]))
 			svars['V_FlowIn'][r, p, s, d, i, t, v, o] = val_in
 
 		if (r, i, t, v, o) not in emission_keys: continue
@@ -202,7 +202,8 @@ def pformat_results ( pyomo_instance, pyomo_result, options ):
 		val = value( m.V_Curtailment[r, p, s, d, i, t, v, o] )
 		if abs(val) < epsilon: continue
 		svars['V_Curtailment'][r, p, s, d, i, t, v, o] = val
-		svars['V_FlowIn'][r, p, s, d, i, t, v, o] = (val + value( m.V_FlowOut[r, p, s, d, i, t, v, o] )) / value(m.Efficiency[r, i, t, v, o])
+		svars['V_FlowIn'][r, p, s, d, i, t, v, o] = (
+                    val + value(m.V_FlowOut[r, p, s, d, i, t, v, o])) / (value(m.Efficiency[r, i, t, v, o]) *  value(m.EfficiencyVariable[r, i, t, s, d, o]))
 
 		if (r, i, t, v, o) not in emission_keys: continue
 
@@ -218,6 +219,7 @@ def pformat_results ( pyomo_instance, pyomo_result, options ):
 				if abs(val_out) < epsilon: continue
 				svars['V_Curtailment'][r, p, s, d, i, t, v, o] = val_out
 				svars['V_FlowOut'][r, p, s, d, i, t, v, o] -= val_out
+
 
 
 	for r, p, s, d, i, t, v, o in m.V_Flex:

@@ -8,11 +8,11 @@
 # Input File (Mandatory) 
 # Input can be a .sqlite or .dat file
 # Both relative path and absolute path are accepted
---input=data_files/US_9R_TS.sqlite
+--input=data_files/US_9R_8D.sqlite
 
 # Output File (Mandatory)
 # The output file must be a existing .sqlite file
---output=data_files/US_9R_TS.sqlite
+--output=data_files/US_9R_8D.sqlite
 
 # Scenario Name (Mandatory) 
 # This scenario name is used to store results within the output .sqlite file

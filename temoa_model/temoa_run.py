@@ -127,7 +127,7 @@ class TemoaSolver(object):
 			raise SystemExit( msg )
 
 		if self.options.neos is True:
-		    # Invoke NEOS solver manager if flag is specified in config file
+			# Invoke NEOS solver manager if flag is specified in config file
 			self.optimizer = pyomo.opt.SolverManagerFactory('neos')
 		else:
 			self.optimizer = SolverFactory( self.options.solver )
@@ -376,7 +376,7 @@ class TemoaSolverInstance(object):
 			self.txt_file.write( 'Solving.')
 			if self.optimizer:
 				if self.options.neos:
-				    self.result = self.optimizer.solve(self.instance, opt=self.options.solver)
+					self.result = self.optimizer.solve(self.instance, opt=self.options.solver)
 				else:
 					if self.options.solver == 'cplex':
 						# Note: these parameter values are taken to be the same as those in PyPSA (see: https://pypsa-eur.readthedocs.io/en/latest/configuration.html)
@@ -385,7 +385,7 @@ class TemoaSolverInstance(object):
 						self.optimizer.options["barrier convergetol"] = 1.e-5
 						self.optimizer.options["feasopt tolerance"] = 1.e-6
 
-				    self.result = self.optimizer.solve( self.instance, suffixes=['dual'],tee=True# 'rc', 'slack'],
+					self.result = self.optimizer.solve( self.instance, suffixes=['dual'],tee=True,# 'rc', 'slack'],
 														keepfiles=self.options.keepPyomoLP,
 														symbolic_solver_labels=self.options.keepPyomoLP )
 				yield '\t\t\t\t\t\t[%8.2f]\n' % duration()
@@ -517,7 +517,7 @@ def parse_args ( ):
 	  type=str,
 	  nargs='*',
 	  help='AMPL-format data file(s) with which to create a model instance. '
-	       'e.g. "data.dat"'
+		   'e.g. "data.dat"'
 	)
 
 	parser.add_argument( '--path_to_logs',
@@ -536,9 +536,9 @@ def parse_args ( ):
 
 	parser.add_argument('--solver',
 	  help="Which backend solver to use.  See 'pyomo --help-solvers' for a list "
-	       'of solvers with which Pyomo can interface.  The list shown here is '
-	       'what Pyomo can currently find on this system.  [Default: {}]'
-	       .format(default_solver),
+		   'of solvers with which Pyomo can interface.  The list shown here is '
+		   'what Pyomo can currently find on this system.  [Default: {}]'
+		   .format(default_solver),
 	  action='store',
 	  choices=sorted(available_solvers),
 	  dest='solver',

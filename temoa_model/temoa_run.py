@@ -350,7 +350,7 @@ class TemoaSolverInstance(object):
 			#self.model.rc = Suffix(direction=Suffix.IMPORT)
 			#self.model.slack = Suffix(direction=Suffix.IMPORT)
 
-			self.instance = self.model.create_instance( modeldata )
+			self.instance = self.model.create_instance( modeldata, report_timing=True )
 			yield '\t\t\t\t[%8.2f]\n' % duration()
 			SE.write( '\r[%8.2f]\n' % duration() )
 			self.txt_file.write( '[%8.2f]\n' % duration() )
@@ -378,9 +378,16 @@ class TemoaSolverInstance(object):
 				if self.options.neos:
 				    self.result = self.optimizer.solve(self.instance, opt=self.options.solver)
 				else:
-				    self.result = self.optimizer.solve( self.instance, suffixes=['dual'],# 'rc', 'slack'],
-								keepfiles=self.options.keepPyomoLP,
-								symbolic_solver_labels=self.options.keepPyomoLP )
+					if self.options.solver == 'cplex':
+						# Note: these parameter values are taken to be the same as those in PyPSA (see: https://pypsa-eur.readthedocs.io/en/latest/configuration.html)
+						self.optimizer.options["lpmethod"] = 4 # barrier
+						self.optimizer.options["solutiontype"] = 2 # non basic solution, ie no crossover
+						self.optimizer.options["barrier convergetol"] = 1.e-5
+						self.optimizer.options["feasopt tolerance"] = 1.e-6
+
+				    self.result = self.optimizer.solve( self.instance, suffixes=['dual'],tee=True# 'rc', 'slack'],
+														keepfiles=self.options.keepPyomoLP,
+														symbolic_solver_labels=self.options.keepPyomoLP )
 				yield '\t\t\t\t\t\t[%8.2f]\n' % duration()
 				SE.write( '\r[%8.2f]\n' % duration() )
 				self.txt_file.write( '[%8.2f]\n' % duration() )

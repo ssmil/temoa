@@ -1019,33 +1019,29 @@ DemandActivity constraint. It returns a tuple of the form:
 and "first_d" are the reference season and time-of-day, respectively used to
 ensure demand activity remains consistent across time slices.
 """
-	first_s = M.time_season.first()
-	first_d = M.time_of_day.first()
-	for r,p,t,v,dem in M.ProcessInputsByOutput.keys():
-		if dem in M.commodity_demand and t not in M.tech_annual:
-			for s in M.time_season:
-				for d in M.time_of_day:
-					if s != first_s or d != first_d:
-						yield (r,p,s,d,t,v,dem,first_s,first_d)
 
-def DemandConstraintIndices ( M ):
-	used_dems = set((r,dem) for r, p, dem in M.Demand.sparse_iterkeys())
-	DSD_keys = M.DemandSpecificDistribution.sparse_keys()
-	dem_slices = { (r,dem) : set(
-	    (s, d)
-	    for s in M.time_season
-	    for d in M.time_of_day
-	    if (r, s, d, dem) in DSD_keys )
-	  for (r,dem) in used_dems
-	}
+    first_s = M.time_season.first()
+    first_d = M.time_of_day.first()
+    for r, p, t, v, dem in M.ProcessInputsByOutput.keys():
+        if dem in M.commodity_demand and t not in M.tech_annual:
+            if (r, p, first_s, first_d, dem) in M.DemandSpecificDistribution.sparse_keys():
+                for s in M.time_season:
+                    for d in M.time_of_day:
+                        if s != first_s or d != first_d:
+                            yield (r, p, s, d, t, v, dem, first_s, first_d)
 
-	indices = set(
-	  (r, p, s, d, dem)
 
-	  for r, p, dem in M.Demand.sparse_iterkeys()
-	  for s, d in dem_slices[ (r,dem) ]
-	)
+def DemandConstraintIndices(M):
 
+    # Assume if a DSD is given for a single timestamp, it must be given
+    # for all time stamps
+    indices = set(
+        (r, p, s, d, dem)
+
+        for r, p, dem in M.Demand.sparse_iterkeys()
+        for s in M.time_season
+        for d in M.time_of_day
+    )
 	return indices
 
 def BaseloadDiurnalConstraintIndices ( M ):

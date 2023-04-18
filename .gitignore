@@ -1,13 +1,11 @@
 *.pyc
-data_files/*.sql
-data_files/*.sqlite
-data_files/*.dat
-data_files/debug_logs/*.log
+*.sql
+*.sqlite
+*.dat
+*.log
+*.xlsx
 data_files/debug_logs/lp_files/*
 data_files/untracked_data/
 .DS_Store
 *.ipynb_checkpoints
 
-*.log
-
-*.xlsx

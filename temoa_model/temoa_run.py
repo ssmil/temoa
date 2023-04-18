@@ -379,19 +379,19 @@ class TemoaSolverInstance(object):
 					self.result = self.optimizer.solve(self.instance, opt=self.options.solver)
 				else:
 					if self.options.solver == 'cplex':
-						# Note: these parameter values are taken to be the same as those in PyPSA (see: https://pypsa-eur.readthedocs.io/en/latest/configuration.html)
 						self.optimizer.options["lpmethod"] = 4 # barrier
 						self.optimizer.options["solutiontype"] = 2 # non basic solution, ie no crossover
-						self.optimizer.options["barrier convergetol"] = 1.e-5
-						self.optimizer.options["feasopt tolerance"] = 1.e-6
+						self.optimizer.options["barrier convergetol"] = 1.e-2 # Absolute objective primal and dual difference for optimality
+						self.optimizer.options["feasopt tolerance"] = 1.e-6 # Relaxation of feasbility constraints if infeasible
+						self.optimizer.options["emphasis numerical"] = 1.e-6 # 0 or 1, controls focus on numeric precision
 					if self.options.solver == 'gurobi':
-						# Note: these parameter values are taken to be the same as those in PyPSA (see: https://pypsa-eur.readthedocs.io/en/latest/configuration.html)
 						self.optimizer.options["Method"] = 3 # Concurrent simplex and barrier
 						self.optimizer.options["Crossover"] = 0 # non basic solution, ie no crossover
-						self.optimizer.options["BarConvTol"] = 1.e-5
-						self.optimizer.options["FeasibilityTol"] = 1.e-6
-						self.optimizer.options["ScaleFlag"] = 3
-						# self.optimizer.options["NumericFocus"] = -1
+						self.optimizer.options["BarConvTol"] = 1.e-2 # Absolute objective primal and dual difference for optimality
+						self.optimizer.options["OptimalityTol"] = 1.e-4 # Relative objective step difference for optimality
+						self.optimizer.options["FeasibilityTol"] = 1.e-6 # Constraint tolerance
+						self.optimizer.options["ScaleFlag"] = 3 # Controls model scaling
+						# self.optimizer.options["NumericFocus"] = -1 # Controls focus on numeric precision, 0-3 for increasing focus, -1 automatic
 
 					self.result = self.optimizer.solve( self.instance, suffixes=['dual'],tee=True,# 'rc', 'slack'],
 														keepfiles=self.options.keepPyomoLP,

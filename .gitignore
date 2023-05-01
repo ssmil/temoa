@@ -1,11 +1,14 @@
 *.pyc
 *.sql
 *.sqlite
+*.sqlite-journal
 *.dat
 *.log
 *.xlsx
 data_files/debug_logs/lp_files/*
 data_files/untracked_data/
+data_files/*.sqlite
 .DS_Store
 *.ipynb_checkpoints
-
+*.lp
+config_sample_myopic*

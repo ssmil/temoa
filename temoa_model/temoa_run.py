@@ -378,18 +378,19 @@ class TemoaSolverInstance(object):
 				if self.options.neos:
 					self.result = self.optimizer.solve(self.instance, opt=self.options.solver)
 				else:
-					if self.options.solver == 'S':
-						# Note: these parameter values are taken to be the same as those in PyPSA (see: https://pypsa-eur.readthedocs.io/en/latest/configuration.html)
+					if self.options.solver == 'cplex':
 						self.optimizer.options["lpmethod"] = 4 # barrier
 						# self.optimizer.options["solutiontype"] = 2 # non basic solution, ie no crossover (not used)
-						# self.optimizer.options["barrier convergetol"] = 1.e-5 # (not used)
-						# self.optimizer.options["feasopt tolerance"] = 1.e-6 # (not used)
+						# self.optimizer.options["barrier convergetol"] = 1e-5 # Absolute objective primal and dual difference for optimality (not used)
+						# self.optimizer.options["feasopt tolerance"] = 1e-6 # Relaxation of feasibility constraints if infeasible (not used)
 						self.optimizer.options["read scale"] = 1 # Aggressive scaling
+						# self.optimizer.options["emphasis numerical"] = 1 # 0 or 1, controls focus on numeric precision
 					if self.options.solver == 'gurobi':
 						self.optimizer.options["Method"] = 2 # Barrier
 						# self.optimizer.options["Crossover"] = 0 # non basic solution, ie no crossover (not used)
-						# self.optimizer.options["BarConvTol"] = 1.e-5 # (not used)
-						# Sself.optimizer.options["FeasibilityTol"] = 1.e-6 # (not used)
+						# self.optimizer.options["BarConvTol"] = 1e-5 # Absolute objective primal and dual difference for optimality (not used)
+						# self.optimizer.options["OptimalityTol"] = 1.e-4 # Relative objective step difference for optimality
+						# self.optimizer.options["FeasibilityTol"] = 1e-6 # Constraint tolerance (not used)
 						self.optimizer.options["ScaleFlag"] = 3 # Aggressive scaling
 						# self.optimizer.options["NumericFocus"] = -1 #  (not used)
 

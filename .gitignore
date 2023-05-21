@@ -12,3 +12,4 @@ data_files/*.sqlite
 *.ipynb_checkpoints
 *.lp
 config_sample_myopic*
+data_files/

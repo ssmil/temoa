@@ -1942,7 +1942,7 @@ pertains to technologies with constant annual output belonging to the
             for S_v in M.processVintages[r, p, t]
             for S_i in M.processInputs[r, p, t, S_v]
             for S_o in M.ProcessOutputsByInput[r, p, t, S_v, S_i]
-            for s in M.time_seasons
+            for s in M.time_season
             for d in M.time_of_day
         )
     except:
@@ -1988,7 +1988,7 @@ def MaxAnnualCapacityFactor_Constraint(M, r, p, t):
                 for S_v in M.processVintages[r, p, t]
                 for S_i in M.processInputs[r, p, t, S_v]
                 for S_o in M.ProcessOutputsByInput[r, p, t, S_v, S_i]
-                for s in M.time_seasons
+                for s in M.time_season
                 for d in M.time_of_day
             )
         except:

@@ -384,7 +384,7 @@ class TemoaSolverInstance(object):
 						# self.optimizer.options["barrier convergetol"] = 1e-5 # Absolute objective primal and dual difference for optimality (not used)
 						# self.optimizer.options["feasopt tolerance"] = 1e-6 # Relaxation of feasibility constraints if infeasible (not used)
 						self.optimizer.options["read scale"] = 1 # Aggressive scaling
-						# self.optimizer.options["emphasis numerical"] = 1 # 0 or 1, controls focus on numeric precision
+						# self.optimizer.options["emphasis numerical"] = 'y' # 'y' or 'n', controls focus on numeric precision
 					if self.options.solver == 'gurobi':
 						self.optimizer.options["Method"] = 2 # Barrier
 						# self.optimizer.options["Crossover"] = 0 # non basic solution, ie no crossover (not used)

@@ -224,8 +224,8 @@ def temoa_create_model(name="Temoa"):
     M.EmissionActivity = Param(M.EmissionActivity_reitvo)
     M.MinGenGroupWeight = Param(M.RegionalIndices, M.tech_groups, M.groups, default = 0)
     M.MinGenGroupTarget = Param(M.time_optimize, M.groups)
-    M.MinAnnualCapacityFactor = Param(M.RegionalGlobalIndices, M.time_optimize, M.tech_all)
-    M.MaxAnnualCapacityFactor = Param(M.RegionalGlobalIndices, M.time_optimize, M.tech_all)
+    M.MinAnnualCapacityFactor = Param(M.RegionalGlobalIndices, M.time_optimize, M.tech_all, M.commodity_carrier)
+    M.MaxAnnualCapacityFactor = Param(M.RegionalGlobalIndices, M.time_optimize, M.tech_all, M.commodity_carrier)
     M.LinkedTechs = Param(M.RegionalIndices, M.tech_all, M.commodity_emissions)
 
     # Define parameters associated with electric sector operation
@@ -497,14 +497,14 @@ def temoa_create_model(name="Temoa"):
     )
 
     M.MinAnnualCapacityFactorConstraint_rpt = Set(
-        dimen=3, initialize=lambda M: M.MinAnnualCapacityFactor.sparse_iterkeys()
+        dimen=4, initialize=lambda M: M.MinAnnualCapacityFactor.sparse_iterkeys()
     )
     M.MinAnnualCapacityFactorConstraint = Constraint(
         M.MinAnnualCapacityFactorConstraint_rpt, rule=MinAnnualCapacityFactor_Constraint
     )
 
     M.MaxAnnualCapacityFactorConstraint_rpt = Set(
-        dimen=3, initialize=lambda M: M.MaxAnnualCapacityFactor.sparse_iterkeys()
+        dimen=4, initialize=lambda M: M.MaxAnnualCapacityFactor.sparse_iterkeys()
     )
     M.MaxAnnualCapacityFactorConstraint = Constraint(
         M.MaxAnnualCapacityFactorConstraint_rpt, rule=MaxAnnualCapacityFactor_Constraint

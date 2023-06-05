@@ -1935,31 +1935,31 @@ pertains to technologies with constant annual output belonging to the
       reg = [r]
 
     try:
-        activity_rpt = sum(
+        activity_rpto = sum(
             M.V_FlowOut[r, p, s, d, S_i, t, S_v, o]
             for r in reg if ',' not in r
             for S_v in M.processVintages[r, p, t]
-            for S_i in M.processInputs[r, p, t, S_v]
-            # for S_o in M.ProcessOutputsByInput[r, p, t, S_v, S_i]
+            # for S_i in M.processInputs[r, p, t, S_v]
+            for S_i in M.ProcessOutputsByInput[r, p, t, S_v, o]
             for s in M.time_season
             for d in M.time_of_day
         )
     except:
-        activity_rpt = sum(
+        activity_rpto = sum(
             M.V_FlowOutAnnual[r, p, S_i, t, S_v, o]
             for r in reg if ',' not in r
             for S_v in M.processVintages[r, p, t]
-            for S_i in M.processInputs[r, p, t, S_v]
-            # for S_o in M.ProcessOutputsByInput[r, p, t, S_v, S_i]
+            # for S_i in M.processInputs[r, p, t, S_v]
+            for S_i in M.ProcessOutputsByInput[r, p, t, S_v, o]
         )
 
     max_possible_activity_rpt = M.V_CapacityAvailableByPeriodAndTech[r, p, t] * M.CapacityToActivity[r, t]
     min_annual_cf = value(M.MinAnnualCapacityFactor[r, p, t, o])
-    expr = activity_rpt >= min_annual_cf * max_possible_activity_rpt
+    expr = activity_rpto >= min_annual_cf * max_possible_activity_rpt
     return expr
 
 
-def MaxAnnualCapacityFactor_Constraint(M, r, p, t,o ):
+def MaxAnnualCapacityFactor_Constraint(M, r, p, t, o):
         r"""
     The MaxAnnualCapacityFactor sets an upper bound on the annual capacity factor
     from a specific technology. The first version of the constraint pertains to
@@ -1981,27 +1981,27 @@ def MaxAnnualCapacityFactor_Constraint(M, r, p, t,o ):
           reg = [r]
 
         try:
-            activity_rpt = sum(
+            activity_rpto = sum(
                 M.V_FlowOut[r, p, s, d, S_i, t, S_v, o]
                 for r in reg if ',' not in r
                 for S_v in M.processVintages[r, p, t]
-                for S_i in M.processInputs[r, p, t, S_v]
-                # for o in M.ProcessOutputsByInput[r, p, t, S_v, S_i]
+                # for S_i in M.processInputs[r, p, t, S_v]
+                for S_i in M.ProcessOutputsByInput[r, p, t, S_v, o]
                 for s in M.time_season
                 for d in M.time_of_day
             )
         except:
-            activity_rpt = sum(
+            activity_rpto = sum(
                 M.V_FlowOutAnnual[r, p, S_i, t, S_v, o]
                 for r in reg if ',' not in r
                 for S_v in M.processVintages[r, p, t]
-                for S_i in M.processInputs[r, p, t, S_v]
-                # for o in M.ProcessOutputsByInput[r, p, t, S_v, S_i]
+                # for S_i in M.processInputs[r, p, t, S_v]
+                for S_i in M.ProcessOutputsByInput[r, p, t, S_v, o]
             )
 
         max_possible_activity_rpt = M.V_CapacityAvailableByPeriodAndTech[r, p, t] * M.CapacityToActivity[r, t]
         max_annual_cf = value(M.MaxAnnualCapacityFactor[r, p, t, o])
-        expr = activity_rpt <= max_annual_cf * max_possible_activity_rpt
+        expr = activity_rpto <= max_annual_cf * max_possible_activity_rpt
         return expr
 
 

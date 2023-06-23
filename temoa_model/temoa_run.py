@@ -381,8 +381,9 @@ class TemoaSolverInstance(object):
 					if self.options.solver == 'cplex':
 						self.optimizer.options["lpmethod"] = 4 # barrier
 						# self.optimizer.options["solutiontype"] = 2 # non basic solution, ie no crossover (not used)
-						# self.optimizer.options["barrier convergetol"] = 1e-5 # Absolute objective primal and dual difference for optimality (not used)
-						# self.optimizer.options["feasopt tolerance"] = 1e-6 # Relaxation of feasibility constraints if infeasible (not used)
+						self.optimizer.options["barrier convergetol"] = 1e-5 # Barrier 
+						self.optimizer.options["feasopt tolerance"] = 1e-5 # Feasibility constraint to bounds
+						# self.optimizer.options["simplex tolerances feasibility"] = 1e-5 # Feasibility constraint to bounds
 						self.optimizer.options["read scale"] = 1 # Aggressive scaling
 						# self.optimizer.options["emphasis numerical"] = 'y' # 'y' or 'n', controls focus on numeric precision
 					if self.options.solver == 'gurobi':
@@ -390,7 +391,7 @@ class TemoaSolverInstance(object):
 						# self.optimizer.options["Crossover"] = 0 # non basic solution, ie no crossover (not used)
 						# self.optimizer.options["BarConvTol"] = 1e-5 # Absolute objective primal and dual difference for optimality (not used)
 						# self.optimizer.options["OptimalityTol"] = 1.e-4 # Relative objective step difference for optimality
-						# self.optimizer.options["FeasibilityTol"] = 1e-6 # Constraint tolerance (not used)
+						self.optimizer.options["FeasibilityTol"] = 1e-5 # Constraint tolerance (not used)
 						self.optimizer.options["ScaleFlag"] = 3 # Aggressive scaling
 						# self.optimizer.options["NumericFocus"] = -1 #  (not used)
 

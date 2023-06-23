@@ -1940,7 +1940,7 @@ pertains to technologies with constant annual output belonging to the
             for r in reg if ',' not in r
             for S_v in M.processVintages[r, p, t]
             # for S_i in M.processInputs[r, p, t, S_v]
-            for S_i in M.ProcessOutputsByInput[r, p, t, S_v, o]
+            for S_i in M.ProcessInputsByOutput[r, p, t, S_v, o]
             for s in M.time_season
             for d in M.time_of_day
         )
@@ -1950,7 +1950,7 @@ pertains to technologies with constant annual output belonging to the
             for r in reg if ',' not in r
             for S_v in M.processVintages[r, p, t]
             # for S_i in M.processInputs[r, p, t, S_v]
-            for S_i in M.ProcessOutputsByInput[r, p, t, S_v, o]
+            for S_i in M.ProcessInputsByOutput[r, p, t, S_v, o]
         )
 
     max_possible_activity_rpt = M.V_CapacityAvailableByPeriodAndTech[r, p, t] * M.CapacityToActivity[r, t]
@@ -1986,7 +1986,7 @@ def MaxAnnualCapacityFactor_Constraint(M, r, p, t, o):
                 for r in reg if ',' not in r
                 for S_v in M.processVintages[r, p, t]
                 # for S_i in M.processInputs[r, p, t, S_v]
-                for S_i in M.ProcessOutputsByInput[r, p, t, S_v, o]
+                for S_i in M.ProcessInputsByOutput[r, p, t, S_v, o]
                 for s in M.time_season
                 for d in M.time_of_day
             )
@@ -1996,7 +1996,7 @@ def MaxAnnualCapacityFactor_Constraint(M, r, p, t, o):
                 for r in reg if ',' not in r
                 for S_v in M.processVintages[r, p, t]
                 # for S_i in M.processInputs[r, p, t, S_v]
-                for S_i in M.ProcessOutputsByInput[r, p, t, S_v, o]
+                for S_i in M.ProcessInputsByOutput[r, p, t, S_v, o]
             )
 
         max_possible_activity_rpt = M.V_CapacityAvailableByPeriodAndTech[r, p, t] * M.CapacityToActivity[r, t]

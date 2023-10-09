@@ -505,18 +505,18 @@ def temoa_create_model(name="Temoa"):
         M.MinCapacityConstraint_rpt, rule=MinCapacity_Constraint
     )
 
-    M.MinAnnualCapacityFactorConstraint_rpt = Set(
+    M.MinAnnualCapacityFactorConstraint_rpto = Set(
         dimen=4, initialize=lambda M: M.MinAnnualCapacityFactor.sparse_iterkeys()
     )
     M.MinAnnualCapacityFactorConstraint = Constraint(
-        M.MinAnnualCapacityFactorConstraint_rpt, rule=MinAnnualCapacityFactor_Constraint
+        M.MinAnnualCapacityFactorConstraint_rpto, rule=MinAnnualCapacityFactor_Constraint
     )
 
-    M.MaxAnnualCapacityFactorConstraint_rpt = Set(
+    M.MaxAnnualCapacityFactorConstraint_rpto = Set(
         dimen=4, initialize=lambda M: M.MaxAnnualCapacityFactor.sparse_iterkeys()
     )
     M.MaxAnnualCapacityFactorConstraint = Constraint(
-        M.MaxAnnualCapacityFactorConstraint_rpt, rule=MaxAnnualCapacityFactor_Constraint
+        M.MaxAnnualCapacityFactorConstraint_rpto, rule=MaxAnnualCapacityFactor_Constraint
     )
 
     M.TechInputSplitConstraint_rpsditv = Set(

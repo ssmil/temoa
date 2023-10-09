@@ -1761,36 +1761,33 @@ set.
     return expr
 
 
-def MinActivityGroup_Constraint(M, p, g):
+def MinActivityGroup_Constraint(M, r, p, g):
     r"""
 
 The MinActivityGroup constraint sets a minimum activity limit for a user-defined
-technology group. Each technology within each group is multiplied by a
-weighting function (:math:`MGW_{r,t}`), which determines the technology activity
-share that can count towards the constraint.
+technology group.
 
 .. math::
    :label: MinActivityGroup
 
-       \sum_{S,D,I,T,V,O} \textbf{FO}_{p, s, d, i, t, v, o} \cdot MGW_{t|t \not \in T^{a}}
-       + \sum_{I,T,V,O} \textbf{FOA}_{p, i, t \in T^{a}, v, o} \cdot MGW_{t \in T^{a}}
-       \ge MGT_{p, g}
+       \sum_{R,S,D,I,T,V,O} \textbf{FO}_{r, p, s, d, i, t, v, o} + \sum_{I,T,V,O}
+       \textbf{FOA}_{r, p, i, t, v, o}
+       \ge MnAG_{r, p, g}
+       \forall \{r, p, g\} \in \Theta_{\text{MinActivityGroup}}
 
-       \forall \{p, g\} \in \Theta_{\text{MinActivityGroup}}
-
-where :math:`g` represents the assigned technology group and :math:`MGT_r`
-refers to the :code:`MinGenGroupTarget` parameter.
+where :math:`g` represents the assigned technology group and :math:`MnAG`
+refers to the :code:`MinActivityGroup` parameter.
 """
 
     activity_p = sum(
-        M.V_FlowOut[r, p, s, d, S_i, S_t, S_v, S_o] * M.MinGenGroupWeight[r, S_t, g]
-        for r in M.RegionalIndices
-        for S_t in M.tech_groups if (S_t not in M.tech_annual) and ((r, p, S_t) in M.processVintages.keys())
+        M.V_FlowOut[r, p, s, d, S_i, S_t, S_v, S_o]
+        for _r, _g, S_t in M.tech_groups if _r == r and _g == g and (r, p, S_t) in M.processVintages
         for S_v in M.processVintages[r, p, S_t]
         for S_i in M.processInputs[r, p, S_t, S_v]
         for S_o in M.ProcessOutputsByInput[r, p, S_t, S_v, S_i]
         for s in M.time_season
         for d in M.time_of_day
+        if (S_t not in M.tech_annual) and ((r, p, S_t) in M.processVintages.keys())
     )
 
     activity_p_annual = sum(
@@ -1800,13 +1797,50 @@ refers to the :code:`MinGenGroupTarget` parameter.
         for S_v in M.processVintages[r, p, S_t]
         for S_i in M.processInputs[r, p, S_t, S_v]
         for S_o in M.ProcessOutputsByInput[r, p, S_t, S_v, S_i]
+        if (S_t in M.tech_annual) and ((r, p, S_t) in M.processVintages.keys())
     )
 
-
-    min_act = value(M.MinGenGroupTarget[p, g])
+    min_act = value(M.MinActivityGroup[r, p, g])
     expr = activity_p + activity_p_annual >= min_act
     return expr
 
+def MaxActivityGroup_Constraint(M, r, p, g):
+    r"""
+The MaxActivityGroup constraint sets a maximum activity limit for a user-defined
+technology group.
+.. math::
+   :label: MaxActivityGroup
+       \sum_{R,S,D,I,T,V,O} \textbf{FO}_{r, p, s, d, i, t, v, o} + \sum_{I,T,V,O}
+       \textbf{FOA}_{r, p, i, t, v, o}
+       \le MxAG_{r, p, g}
+       \forall \{r, p, g\} \in \Theta_{\text{MaxActivityGroup}}
+where :math:`g` represents the assigned technology group and :math:`MxAG`
+refers to the :code:`MaxActivityGroup` parameter.
+"""
+
+    activity_p = sum(
+        M.V_FlowOut[r, p, s, d, S_i, S_t, S_v, S_o]
+        for _r, _g, S_t in M.tech_groups if _r == r and _g == g and (r, p, S_t) in M.processVintages
+        for S_v in M.processVintages[r, p, S_t]
+        for S_i in M.processInputs[r, p, S_t, S_v]
+        for S_o in M.ProcessOutputsByInput[r, p, S_t, S_v, S_i]
+        for s in M.time_season
+        for d in M.time_of_day
+        if (S_t not in M.tech_annual) and ((r, p, S_t) in M.processVintages.keys())
+    )
+
+    activity_p_annual = sum(
+        M.V_FlowOutAnnual[r, p, S_i, S_t, S_v, S_o]
+        for _r, _g, S_t in M.tech_groups if _r == r and _g == g and (r, p, S_t) in M.processVintages
+        for S_v in M.processVintages[r, p, S_t]
+        for S_i in M.processInputs[r, p, S_t, S_v]
+        for S_o in M.ProcessOutputsByInput[r, p, S_t, S_v, S_i]
+        if (S_t in M.tech_annual) and ((r, p, S_t) in M.processVintages.keys())
+    )
+
+    max_act = value(M.MaxActivityGroup[r, p, g])
+    expr = activity_p + activity_p_annual <= max_act
+    return expr
 
 def MaxCapacity_Constraint(M, r, p, t):
     r"""
@@ -1867,15 +1901,15 @@ constraints are region and tech.
     return expr
 
 
-def MaxCapacitySet_Constraint(M, p):
+def MaxCapacityGroup_Constraint(M, r, p, g):
     r"""
-Similar to the :code:`MaxCapacity` constraint, but works on a group of technologies
-specified in the :code:`tech_capacity_max` subset.
+Similar to the :code:`MaxCapacity` constraint, but works on a group of technologies.
 
 """
-    max_cap = value(M.MaxCapacitySum[p])
+    max_cap = value(M.MaxCapacityGroup[r, p, g])
     aggcap = sum(
-        M.V_CapacityAvailableByPeriodAndTech[p, t] for t in M.tech_capacity_max
+        M.V_CapacityAvailableByPeriodAndTech[r, p, t]
+        for _r, _g, t in M.tech_groups if _r == r and _g == g and (r, p, t) in M.V_CapacityAvailableByPeriodAndTech.keys()
     )
     expr = aggcap <= max_cap
     return expr
@@ -1900,15 +1934,15 @@ tech, not tech and vintage.
     return expr
 
 
-def MinCapacitySet_Constraint(M, p):
+def MinCapacityGroup_Constraint(M, r, p, g):
     r"""
-Similar to the :code:`MinCapacity` constraint, but works on a group of technologies
-specified in the :code:`tech_capacity_min` subset.
+Similar to the :code:`MinCapacity` constraint, but works on a group of technologies.
 
 """
-    min_cap = value(M.MinCapacitySum[p])
+    min_cap = value(M.MinCapacityGroup[r, p, g])
     aggcap = sum(
-        M.V_CapacityAvailableByPeriodAndTech[p, t] for t in M.tech_capacity_min
+        M.V_CapacityAvailableByPeriodAndTech[r, p, t]
+        for _r, _g, t in M.tech_groups if _r == r and _g == g and (r, p, t) in M.V_CapacityAvailableByPeriodAndTech.keys()
     )
     expr = aggcap >= min_cap
     return expr
